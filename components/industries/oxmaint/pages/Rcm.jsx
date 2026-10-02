@@ -266,6 +266,12 @@ function RcmAnalysis({ libraryKey, picker }) {
       render: (r) => <StatusBadge tone={STRATEGY_TONE[r.strategy]}>{r.strategy}</StatusBadge>,
     },
     {
+      key: 'grief', label: 'Grief', width: 118,
+      render: (r) => r.grief
+        ? <StatusBadge tone={r.grief === 'Material' ? 'amber' : r.grief === 'Workmanship' ? 'violet' : r.grief === 'Vendor part' ? 'blue' : 'grey'}>{r.grief}</StatusBadge>
+        : <span style={{ fontSize: 11.5, color: MUTE }}>—</span>,
+    },
+    {
       // Where the plant has the machine, the action is the job. Where it does
       // not, a greyed-out button teaches the reader nothing — the action is the
       // step that has to happen first.

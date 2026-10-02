@@ -25,6 +25,7 @@
 import { useMemo } from 'react'
 import PACK from './packs'
 import tyreLibrary from './rcmLibraries/tyre'
+import nestleLibrary from './rcmLibraries/nestle'
 import { ASSETS, WORK_ORDERS, EPOCH, daysFrom } from './data'
 import { useRecords } from './store'
 
@@ -42,7 +43,7 @@ export const RCM_ACTIVE = Boolean(RCM_LIBRARY?.equipment?.length)
  * equipment the library still reads — the screen says the register has no such
  * units, and the actions that need one are off.
  */
-const REFERENCE_LIBRARIES = [tyreLibrary]
+const REFERENCE_LIBRARIES = [nestleLibrary, tyreLibrary]
 
 export const RCM_LIBRARIES = [
   ...(RCM_ACTIVE ? [{ ...RCM_LIBRARY, key: RCM_LIBRARY.key || 'plant', own: true }] : []),
