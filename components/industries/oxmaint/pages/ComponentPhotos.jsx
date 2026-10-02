@@ -1,14 +1,16 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Section, PALETTE } from '../lib/kit'
+import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { apiUrl } from '@/lib/apiPath'
 import {
   CASES, cueKey, featuresFromCues, matchCues,
 } from '../lib/componentPhotos'
 
-const { INK, SUB, MUTE, LINE } = PALETTE
 const STORE = 'oxmaint-component-photo-corrections'
+const nativeSelect = 'h-9 w-full rounded-md border border-slate-200 bg-white px-2 text-sm outline-none focus:border-primary/40'
 
 function loadCorrections() {
   if (typeof localStorage === 'undefined') return []
@@ -148,156 +150,174 @@ export default function ComponentPhotos() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <Section title="Photos" right={<span style={{ fontSize: 11.5, color: MUTE }}>scored only against these eight modes</span>}>
-        <p style={{ margin: '0 0 10px', fontSize: 13, color: SUB, lineHeight: 1.45 }}>
-          Add one or more. Read pulls what is visible, then aligns it to a seeded failure mode.
-          This is a reference corpus, not a trained plant model.
-        </p>
-        <label style={{
-          display: 'inline-flex', alignItems: 'center', height: 36, padding: '0 14px', borderRadius: 9,
-          background: '#15227a', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-        }}>
-          Add photos
-          <input
-            type="file" accept="image/jpeg,image/png,image/webp" multiple
-            style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}
-            onChange={(event) => { addPhotos(event.target.files); event.target.value = '' }}
-          />
-        </label>
-        {photos.length > 0 && (
-          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginTop: 12 }}>
-            {photos.map((photo) => (
-              <button
-                key={photo.id} type="button"
-                onClick={() => { setPhotoId(photo.id); setDisposition(null); setSaved(null) }}
-                style={{
-                  width: 96, flex: '0 0 auto', padding: 0, borderRadius: 9, overflow: 'hidden', cursor: 'pointer', textAlign: 'left',
-                  border: `1px solid ${photo.id === photoId ? '#15227a' : LINE}`, background: '#fff',
-                }}
-              >
-                {photo.url ? <img src={photo.url} alt="" style={{ width: '100%', height: 64, objectFit: 'cover', display: 'block' }} /> : <span style={{ display: 'block', height: 64, background: '#f8fafc' }} />}
-                <span style={{ display: 'block', padding: '4px 6px', fontSize: 11, color: INK, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{photo.name}</span>
-              </button>
-            ))}
+    <div className="space-y-4">
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <CardTitle className="text-base">Photos</CardTitle>
+              <p className="mt-1 text-sm text-slate-500">
+                Add one or more. Read pulls what is visible, then aligns it to a seeded failure mode.
+                This is a reference corpus, not a trained plant model.
+              </p>
+            </div>
+            <Badge variant="outline">Eight modes</Badge>
           </div>
-        )}
-        {active && (
-          <div style={{ marginTop: 12 }}>
-            {active.url && (
-              <img src={active.url} alt={active.name} style={{ maxHeight: 240, width: '100%', objectFit: 'contain', borderRadius: 10, border: `1px solid ${LINE}`, background: '#f8fafc' }} />
-            )}
-            <button
-              type="button" onClick={readActive} disabled={reading || !active.image}
-              style={{
-                marginTop: 10, height: 36, padding: '0 14px', borderRadius: 9, border: 0, cursor: 'pointer',
-                background: '#b45309', color: '#fff', fontSize: 13, fontWeight: 600, opacity: reading ? 0.6 : 1,
-              }}
-            >
-              {reading ? 'Reading the photo' : 'Read this photo'}
-            </button>
-            {active.error && <p style={{ margin: '8px 0 0', fontSize: 13, color: '#b45309' }}>{active.error}</p>}
-            {active.note && <p style={{ margin: '8px 0 0', fontSize: 13, color: INK }}>{active.note}</p>}
-          </div>
-        )}
-      </Section>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button asChild>
+            <label>
+              Add photos
+              <input
+                type="file" accept="image/jpeg,image/png,image/webp" multiple
+                className="sr-only"
+                onChange={(event) => { addPhotos(event.target.files); event.target.value = '' }}
+              />
+            </label>
+          </Button>
+          {photos.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto">
+              {photos.map((photo) => (
+                <button
+                  key={photo.id} type="button"
+                  onClick={() => { setPhotoId(photo.id); setDisposition(null); setSaved(null) }}
+                  className={`w-24 shrink-0 overflow-hidden rounded-lg border bg-white text-left ${photo.id === photoId ? 'border-primary ring-2 ring-primary/20' : 'border-slate-200'}`}
+                >
+                  {photo.url
+                    ? <img src={photo.url} alt="" className="block h-16 w-full object-cover" />
+                    : <span className="block h-16 bg-slate-100" />}
+                  <span className="block truncate px-1.5 py-1 text-[11px] text-slate-900">{photo.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {active && (
+            <div className="space-y-3">
+              {active.url && (
+                <img src={active.url} alt={active.name} className="max-h-60 w-full rounded-lg border border-slate-200 bg-slate-50 object-contain" />
+              )}
+              <Button variant="secondary" onClick={readActive} disabled={reading || !active.image}>
+                {reading ? 'Reading the photo' : 'Read this photo'}
+              </Button>
+              {active.error && <p className="text-sm text-amber-700">{active.error}</p>}
+              {active.note && <p className="text-sm text-slate-900">{active.note}</p>}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 8 }}>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {CASES.map((row) => {
           const on = row.case_id === shownId
           return (
             <button
               key={row.case_id} type="button"
               onClick={() => { setPhotoId(null); setCaseId(row.case_id); setDisposition(null); setSaved(null); setNote('') }}
-              style={{
-                textAlign: 'left', padding: '8px 10px', borderRadius: 9, cursor: 'pointer', minHeight: 44,
-                border: `1px solid ${on ? '#15227a' : LINE}`,
-                background: on ? '#15227a' : '#fff',
-                color: on ? '#fff' : INK,
-              }}
+              className={`min-h-11 rounded-lg border p-3 text-left ${on ? 'border-primary bg-primary text-primary-foreground' : 'border-slate-200 bg-white text-slate-900 hover:bg-accent'}`}
             >
-              <span style={{ display: 'block', fontSize: 13, fontWeight: 650 }}>{row.caption}</span>
-              <span style={{ display: 'block', fontSize: 11.5, color: on ? '#dbe4ff' : MUTE }}>{row.component}</span>
+              <span className="block text-sm font-semibold">{row.caption}</span>
+              <span className={`mt-0.5 block text-xs ${on ? 'text-primary-foreground/80' : 'text-slate-500'}`}>{row.component}</span>
             </button>
           )
         })}
       </div>
 
-      <Section title="Visible features">
-        <p style={{ margin: '0 0 8px', fontSize: 12.5, color: MUTE }}>
-          {usingPhoto ? 'Taken from the photo, then scored against the eight modes.' : 'Caption cues, until a photo is read.'}
-        </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 10, fontSize: 13 }}>
-          <Fact k="Color" v={features.color} empty={usingPhoto} />
-          <Fact k="Texture" v={features.texture} empty={usingPhoto} />
-          <Fact k="Geometry" v={features.geometry} empty={usingPhoto} />
-          <Fact k="Wear pattern" v={features.wear_pattern} empty={usingPhoto} />
-        </div>
-      </Section>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Visible features</CardTitle>
+            <p className="text-sm text-slate-500">
+              {usingPhoto ? 'Taken from the photo, then scored against the eight modes.' : 'Caption cues, until a photo is read.'}
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Fact k="Color" v={features.color} empty={usingPhoto} />
+              <Fact k="Texture" v={features.texture} empty={usingPhoto} />
+              <Fact k="Geometry" v={features.geometry} empty={usingPhoto} />
+              <Fact k="Wear pattern" v={features.wear_pattern} empty={usingPhoto} />
+            </div>
+          </CardContent>
+        </Card>
 
-      <Section title="Match">
-        <div style={{ fontSize: 14, fontWeight: 700, color: INK }}>{hit.mode.failure_mode}</div>
-        <div style={{ fontSize: 13, color: SUB, marginTop: 4 }}>
-          {hit.mode.component} · {hit.mode.case_id}{hit.corrected ? ' · specialist record' : ''}
-        </div>
-        <p style={{ fontSize: 13, color: INK, lineHeight: 1.45 }}><span style={{ color: MUTE }}>Next step. </span>{hit.mode.next_step}</p>
-        {hit.corrected && hit.correctionNote && <p style={{ fontSize: 13, color: '#b45309' }}>{hit.correctionNote}</p>}
-        <div style={{ fontSize: 12.5, fontWeight: 700, marginTop: 8 }}>Rejected near-misses</div>
-        <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
-          {hit.rejected.map((miss) => (
-            <li key={miss.case_id} style={{ fontSize: 13, color: INK, marginBottom: 4 }}>
-              <strong>{miss.failure_mode}</strong>
-              <span style={{ color: MUTE }}> · {miss.why}</span>
-            </li>
-          ))}
-        </ul>
-      </Section>
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between gap-2">
+              <CardTitle className="text-base">Match</CardTitle>
+              {hit.corrected && <Badge variant="secondary">Specialist record</Badge>}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <p className="text-sm font-semibold text-slate-900">{hit.mode.failure_mode}</p>
+              <p className="mt-0.5 text-xs text-slate-500">{hit.mode.component} · {hit.mode.case_id}</p>
+            </div>
+            <p className="text-sm text-slate-900"><span className="text-slate-500">Next step. </span>{hit.mode.next_step}</p>
+            {hit.corrected && hit.correctionNote && <p className="text-sm text-amber-700">{hit.correctionNote}</p>}
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">Rejected near-misses</p>
+              <ul className="mt-2 space-y-1.5">
+                {hit.rejected.map((miss) => (
+                  <li key={miss.case_id} className="text-sm text-slate-900">
+                    <span className="font-medium">{miss.failure_mode}</span>
+                    <span className="text-slate-500"> · {miss.why}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-      <Section title="RCA record">
-        <Fact k="Caption" v={usingPhoto && active ? active.name : selected.caption} />
-        <Fact k="Cues" v={liveCues.join(', ')} />
-        <Fact k="Hypothesis" v={hit.mode.failure_mode} />
-        <Fact k="Conclusion" v={hit.corrected ? hit.mode.failure_mode : 'Open until a specialist disposes.'} />
-        <Fact k="Corrective action" v={hit.mode.next_step} />
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
-          {['accept', 'reject', 'correct'].map((item) => (
-            <button
-              key={item} type="button"
-              onClick={() => { setDisposition(item); setSaved(null) }}
-              style={{
-                height: 36, padding: '0 12px', borderRadius: 9, cursor: 'pointer', textTransform: 'capitalize', fontSize: 13,
-                border: `1px solid ${disposition === item ? '#15227a' : LINE}`,
-                background: disposition === item ? '#15227a' : '#fff',
-                color: disposition === item ? '#fff' : INK,
-              }}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-        {disposition === 'correct' && (
-          <label style={{ display: 'block', marginTop: 10, fontSize: 13, color: SUB }}>
-            Corrected mode
-            <select value={toId} onChange={(event) => setToId(event.target.value)} style={{ display: 'block', marginTop: 4, height: 36, width: '100%', borderRadius: 9, border: `1px solid ${LINE}`, padding: '0 8px' }}>
-              {CASES.filter((row) => row.case_id !== shownId).map((row) => (
-                <option key={row.case_id} value={row.case_id}>{row.caption}</option>
-              ))}
-            </select>
-          </label>
-        )}
-        {(disposition === 'reject' || disposition === 'correct') && (
-          <label style={{ display: 'block', marginTop: 10, fontSize: 13, color: SUB }}>
-            Specialist note
-            <textarea value={note} onChange={(event) => setNote(event.target.value)} rows={3} style={{ display: 'block', marginTop: 4, width: '100%', borderRadius: 9, border: `1px solid ${LINE}`, padding: 8 }} />
-          </label>
-        )}
-        {disposition && (
-          <button type="button" onClick={saveDisposition} style={{ marginTop: 10, height: 36, padding: '0 14px', borderRadius: 9, border: 0, background: '#b45309', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>
-            Save disposition
-          </button>
-        )}
-        {saved && <p style={{ fontSize: 13, color: INK }}>{saved}</p>}
-      </Section>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">RCA record</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Fact k="Caption" v={usingPhoto && active ? active.name : selected.caption} />
+            <Fact k="Cues" v={liveCues.join(', ')} />
+            <Fact k="Hypothesis" v={hit.mode.failure_mode} />
+            <Fact k="Conclusion" v={hit.corrected ? hit.mode.failure_mode : 'Open until a specialist disposes.'} />
+            <Fact k="Corrective action" v={hit.mode.next_step} />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {['accept', 'reject', 'correct'].map((item) => (
+              <Button
+                key={item} type="button" size="sm"
+                variant={disposition === item ? 'default' : 'outline'}
+                className="capitalize"
+                onClick={() => { setDisposition(item); setSaved(null) }}
+              >
+                {item}
+              </Button>
+            ))}
+          </div>
+          {disposition === 'correct' && (
+            <label className="block text-sm text-slate-600">
+              Corrected mode
+              <select value={toId} onChange={(event) => setToId(event.target.value)} className={`${nativeSelect} mt-1`}>
+                {CASES.filter((row) => row.case_id !== shownId).map((row) => (
+                  <option key={row.case_id} value={row.case_id}>{row.caption}</option>
+                ))}
+              </select>
+            </label>
+          )}
+          {(disposition === 'reject' || disposition === 'correct') && (
+            <label className="block text-sm text-slate-600">
+              Specialist note
+              <textarea
+                value={note} onChange={(event) => setNote(event.target.value)} rows={3}
+                className="mt-1 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </label>
+          )}
+          {disposition && (
+            <Button variant="secondary" onClick={saveDisposition}>Save disposition</Button>
+          )}
+          {saved && <p className="text-sm text-slate-900">{saved}</p>}
+        </CardContent>
+      </Card>
     </div>
   )
 }
@@ -305,9 +325,9 @@ export default function ComponentPhotos() {
 function Fact({ k, v, empty }) {
   const text = Array.isArray(v) ? (v.length ? v.join(', ') : (empty ? 'None in this photo.' : 'None in the caption.')) : v
   return (
-    <div style={{ marginTop: 6 }}>
-      <div style={{ fontSize: 10.5, color: MUTE, textTransform: 'uppercase', letterSpacing: 0.3 }}>{k}</div>
-      <div style={{ fontSize: 13, color: INK, lineHeight: 1.4 }}>{text}</div>
+    <div>
+      <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{k}</p>
+      <p className="mt-0.5 text-sm text-slate-900">{text}</p>
     </div>
   )
 }
