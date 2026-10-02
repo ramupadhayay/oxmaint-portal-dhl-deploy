@@ -81,6 +81,11 @@ const P = {
   gseCycleCounts: load(() => import('@/components/industries/oxmaint/pages/GseCycleCounts')),
   gseTechKpi: load(() => import('@/components/industries/oxmaint/pages/GseTechKpi')),
 
+  humanoidBridge: load(() => import('@/components/industries/oxmaint/pages/HumanoidBridge')),
+  humanoidKit: load(() => import('@/components/industries/oxmaint/pages/HumanoidKit')),
+  humanoidInspect: load(() => import('@/components/industries/oxmaint/pages/HumanoidInspect')),
+  humanoidWalk: load(() => import('@/components/industries/oxmaint/pages/HumanoidWalk')),
+
   // The hospital life safety module. Same rule as the GSE one: the routes are
   // there for every pack and explain themselves where the pack has no module.
   flsCompliance: load(() => import('@/components/industries/oxmaint/pages/FlsCompliance')),
@@ -190,6 +195,11 @@ const SECTION_MAP = {
   'gse-audit-report': P.gseAuditReport,
   'gse-cycle-counts': P.gseCycleCounts,
   'gse-tech-kpi': P.gseTechKpi,
+
+  'humanoid-bridge': P.humanoidBridge,
+  'humanoid-kit': P.humanoidKit,
+  'humanoid-inspect': P.humanoidInspect,
+  'humanoid-walk': P.humanoidWalk,
 
   'fls-evidence': P.flsEvidence,
   'fls-compliance': P.flsCompliance,
