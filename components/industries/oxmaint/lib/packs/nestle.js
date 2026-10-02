@@ -49,7 +49,7 @@ export default {
     { functional_location_id: 'loc_08', name: 'Electrical rooms', site_id: 'site_01', parent_id: 'loc_07', level: 2 },
   ],
 
-  assetCount: 72,
+  assetCount: 120,
   assetKinds: [
     'Tubular UHT Sterilizer', 'Tubular UHT Sterilizer',
     'Homogenizer', 'Homogenizer', 'Homogenizer',
