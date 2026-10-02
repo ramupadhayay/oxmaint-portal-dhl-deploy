@@ -88,3 +88,35 @@ export function velocityCommand(vx, vy, vyaw, duration = 1) {
     duration,
   }
 }
+
+// ArmSdk order: left arm 5, right arm 5, waist yaw, head pitch, head yaw.
+export const HOLD = [0, 1.57, 0, 1.57, 0, 0, -1.57, 0, -1.57, 0, 0, 0, 0]
+
+export const POSES = {
+  home: HOLD,
+  look: [0, 1.4, 0, 1.4, 0, 0.25, -1.2, 0, -1.15, 0, 0, 0.45, 0],
+  reach: [0, 1.2, 0, 1.2, 0, 0.9, -0.35, 0.1, -0.55, 0, 0, 0.35, 0],
+  lift: [0, 1.2, 0, 1.2, 0, -0.35, -0.3, 0, -1.25, 0, 0, 0.1, 0],
+}
+
+// Parallel jaw on the right wrist. defines.h has no gripper index — R1 EDU
+// is 26 DOF without this tool — so the Jetson drives it beside rt/arm_sdk.
+// Spoken “jaw” and “jaw gun” are this same end-effector.
+export const JAW = {
+  name: 'Parallel jaw',
+  spoken: 'jaw or jaw gun',
+  mount: 'Right wrist. Not a joint in defines.h.',
+  open_mm: 110,
+  grip_mm: 62,
+}
+
+export function jawCommand(action) {
+  const close = action === 'close'
+  return {
+    tool: 'jaw',
+    action: close ? 'close' : 'open',
+    width_mm: close ? JAW.grip_mm : JAW.open_mm,
+    mount: JAW.mount,
+  }
+}
+

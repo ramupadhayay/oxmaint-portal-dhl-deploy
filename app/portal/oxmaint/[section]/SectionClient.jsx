@@ -81,6 +81,8 @@ const P = {
   gseCycleCounts: load(() => import('@/components/industries/oxmaint/pages/GseCycleCounts')),
   gseTechKpi: load(() => import('@/components/industries/oxmaint/pages/GseTechKpi')),
 
+  humanoidQa: load(() => import('@/components/industries/oxmaint/pages/HumanoidQa')),
+  humanoidVoice: load(() => import('@/components/industries/oxmaint/pages/HumanoidVoice')),
   humanoidBridge: load(() => import('@/components/industries/oxmaint/pages/HumanoidBridge')),
   humanoidKit: load(() => import('@/components/industries/oxmaint/pages/HumanoidKit')),
   humanoidInspect: load(() => import('@/components/industries/oxmaint/pages/HumanoidInspect')),
@@ -196,6 +198,8 @@ const SECTION_MAP = {
   'gse-cycle-counts': P.gseCycleCounts,
   'gse-tech-kpi': P.gseTechKpi,
 
+  'humanoid-qa': P.humanoidQa,
+  'humanoid-voice': P.humanoidVoice,
   'humanoid-bridge': P.humanoidBridge,
   'humanoid-kit': P.humanoidKit,
   'humanoid-inspect': P.humanoidInspect,

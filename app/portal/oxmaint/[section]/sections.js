@@ -39,6 +39,8 @@ export const SECTION_SLUGS = [
   'gse-audit-report',
   'gse-cycle-counts',
   'gse-tech-kpi',
+  'humanoid-qa',
+  'humanoid-voice',
   'humanoid-bridge',
   'humanoid-kit',
   'humanoid-inspect',

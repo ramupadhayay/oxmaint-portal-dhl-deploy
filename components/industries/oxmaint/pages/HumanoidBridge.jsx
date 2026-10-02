@@ -33,7 +33,7 @@ export default function HumanoidBridge() {
         <CardContent className="space-y-3 text-sm text-slate-700">
           <p>
             State comes in on <span className="font-mono">{TOPICS.lowState}</span>. Arm commands go out on <span className="font-mono">{TOPICS.armCmd}</span>.
-            Walking is the sport service, not a joint command.
+            Walking is the sport service, not a joint command. The parallel jaw — spoken as jaw or jaw gun — sits on the right wrist and is not one of these indexes.
           </p>
           <p>
             SDK: <a className="text-primary underline" href={SDK_REPO}>{SDK_REPO}</a>

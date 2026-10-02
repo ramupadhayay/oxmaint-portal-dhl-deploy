@@ -1,5 +1,5 @@
 import { waitUntil } from '@vercel/functions'
-import { mcpSelfUrl } from '@/lib/voice/phone'
+import { mcpSelfUrl, isHumanoidPack } from '@/lib/voice/phone'
 import { runRealtimeSession } from '@/lib/voice/realtime'
 import { parseIncomingCall, verifyXaiWebhook, xaiCallRealtimeUrl } from '@/lib/voice/xaiWebhook'
 
@@ -65,6 +65,6 @@ export function GET() {
     ok: true,
     webhook: 'xAI SIP CreatePhoneNumberV2 → POST this URL',
     event: 'realtime.call.incoming',
-    shop: 'DHL Express CVG GSE — Oxmaint AI',
+    shop: isHumanoidPack() ? 'Plant floor — R1 EDU' : 'DHL Express CVG GSE — Oxmaint AI',
   })
 }

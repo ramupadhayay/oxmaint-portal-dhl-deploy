@@ -84,9 +84,11 @@ export default {
   domain: {
     key: 'humanoid',
     label: 'Humanoid',
-    subtitle: 'R1 EDU — kit, inspection, end-of-shift walk',
+    subtitle: 'R1 EDU — quality, kit, inspection, shift walk, voice',
     icon: 'humanoid',
     sections: [
+      { key: 'humanoid-qa', label: 'Quality inspection', kw: 'quality qa spec carton jaw reject filler outfeed uht vision photo' },
+      { key: 'humanoid-voice', label: 'Voice command', kw: 'voice twilio xai grok jaw gun command sdk unitree phone' },
       { key: 'humanoid-bridge', label: 'R1 EDU bridge', kw: 'unitree r1 edu sdk dds actuator joint arm lowstate rt/arm_sdk jetson' },
       { key: 'humanoid-kit', label: 'Spare-parts kit', kw: 'kit spare parts bin pick gripper store on hand work order humanoid' },
       { key: 'humanoid-inspect', label: 'Visual inspection', kw: 'waypoint inspection photo camera humanoid return dock' },
