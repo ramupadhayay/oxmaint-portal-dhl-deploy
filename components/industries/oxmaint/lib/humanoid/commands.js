@@ -214,11 +214,15 @@ export function interpretCommand(raw) {
     ])
   }
 
-  if (/\b(walk|forward|ahead|back up|backward|come here)\b/.test(text)) {
+  if (/\b(walk|move forward|go forward|forward|ahead|back up|backward|come here)\b/.test(text)) {
     const back = /\bback/.test(text)
-    return reply(back ? 'back' : 'walk', back ? 'Backing up.' : 'Walking forward.', [
-      step(back ? 'Back up' : 'Walk forward', velocityCommand(back ? -0.2 : 0.2, 0, 0, 2)),
-    ])
+    return reply(
+      back ? 'back' : 'walk',
+      back
+        ? 'Backing up. Sport API 7105, vx minus 0.2, for 2 seconds.'
+        : 'Walking forward. Sport API 7105, vx 0.2, for 2 seconds.',
+      [step(back ? 'Back up' : 'Walk forward', velocityCommand(back ? -0.2 : 0.2, 0, 0, 2))],
+    )
   }
 
   if (/\b(inspect|photo|picture|waypoint|go to)\b/.test(text)) {
