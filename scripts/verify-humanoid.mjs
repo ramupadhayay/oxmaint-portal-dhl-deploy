@@ -62,4 +62,27 @@ const mystery = interpretCommand('What is the weather')
 if (mystery.understood) fail('unknown speech should not stage a move')
 else ok('unknown speech stages nothing')
 
+const listed = interpretCommand('What can I say')
+if (listed.intent !== 'catalog' || !listed.say.includes('USB') || listed.steps.length) fail('the spoken list did not come back')
+else ok('spoken list includes the USB camera and does not move')
+
+const look = interpretCommand('Look down')
+const head = (look.steps[0]?.publish?.motor_cmd || []).find((row) => row.name === 'HeadPitch')
+if (look.intent !== 'head' || head?.q !== 0.45) fail('look down did not set head pitch')
+else ok('look down is head pitch 0.45')
+
+const elbow = interpretCommand('Set left elbow to 1.2')
+const joint = (elbow.steps[0]?.publish?.motor_cmd || []).find((row) => row.name === 'LeftElbow')
+if (elbow.intent !== 'joint' || joint?.q !== 1.2 || joint?.index !== 18) fail('left elbow was not index 18 at 1.2')
+else ok('set left elbow to 1.2')
+
+const usb = interpretCommand('Take a picture with the USB camera')
+if (usb.intent !== 'usb_camera' || usb.steps[0]?.publish?.device !== '/dev/video0') fail('USB camera was not /dev/video0')
+else ok('USB camera capture on the Jetson')
+
+const line = interpretCommand('Inspect the line with the USB camera')
+const shot = (line.steps || []).find((row) => row.publish?.action === 'capture')
+if (!shot || shot.publish.camera !== 'usb') fail('line inspection did not switch to the USB camera')
+else ok('line inspection can use the USB camera')
+
 if (!process.exitCode) console.log('humanoid command checks passed')

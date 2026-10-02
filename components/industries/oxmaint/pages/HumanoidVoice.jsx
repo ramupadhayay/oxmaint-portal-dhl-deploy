@@ -7,23 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { HumanoidGate } from './humanoidUi'
 import { apiUrl } from '@/lib/apiPath'
 
-const SAMPLES = [
-  'Run quality inspection and pick the faulty cartons off the line',
-  'Check carton CTN-1902',
-  'Close the jaw gun',
-  'Open the jaw',
-  'Walk forward',
-  'Stop',
-  'Pick the kit for work order 2614',
-  'Inspect the filler jaw',
-  'Start the end of shift walk',
-  'Return to the dock',
-]
-
 export default function HumanoidVoice() {
   const [config, setConfig] = useState(null)
   const [catalog, setCatalog] = useState(null)
-  const [text, setText] = useState(SAMPLES[0])
+  const [text, setText] = useState('What can I say')
   const [result, setResult] = useState(null)
   const [busy, setBusy] = useState(false)
   const [listening, setListening] = useState(false)
@@ -91,7 +78,9 @@ export default function HumanoidVoice() {
           <CardTitle className="text-base">Ready to test</CardTitle>
           <p className="text-sm text-slate-500">
             The same interpreter answers this page, a POST, and the xAI voice agent.
-            A spoken order becomes arm, walk, and jaw steps for the Jetson. It does not move the robot from the browser.
+            A spoken order becomes arm, walk, jaw, or USB-camera steps for the Jetson. It does not move the robot from the browser.
+            {catalog?.robot ? ` ${catalog.robot.model}, ${catalog.robot.dof} DOF, ${catalog.robot.sdk}.` : ''}
+            {catalog?.bridge?.repo ? ` Bridge: ${catalog.bridge.repo}` : ''}
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -117,9 +106,16 @@ export default function HumanoidVoice() {
       <Card>
         <CardHeader className="pb-3"><CardTitle className="text-base">Say an order</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            {SAMPLES.map((sample) => (
-              <Button key={sample} size="sm" variant="outline" onClick={() => send(sample)}>{sample}</Button>
+          <div className="space-y-3">
+            {(catalog?.spoken || [{ group: 'Orders', say: 'What can I say', also: [] }]).map((group) => (
+              <div key={group.group}>
+                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{group.group}</p>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {[group.say, ...(group.also || [])].map((sample) => (
+                    <Button key={sample} size="sm" variant="outline" onClick={() => send(sample)}>{sample}</Button>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
           <textarea

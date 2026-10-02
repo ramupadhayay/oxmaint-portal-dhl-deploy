@@ -1,4 +1,4 @@
-import { COMMAND_EXAMPLES, interpretCommand } from '@/components/industries/oxmaint/lib/humanoid/commands'
+import { COMMAND_EXAMPLES, ROBOT, SPOKEN, interpretCommand, spokenBrief } from '@/components/industries/oxmaint/lib/humanoid/commands'
 import { SPEC } from '@/components/industries/oxmaint/lib/humanoid/quality'
 import { publicOrigin, publicVoiceConfig } from '@/lib/voice/phone'
 
@@ -21,6 +21,15 @@ function catalog(request) {
     method: 'POST',
     body: { text: COMMAND_EXAMPLES[0] },
     examples: COMMAND_EXAMPLES,
+    spoken: SPOKEN,
+    brief: spokenBrief(),
+    robot: ROBOT,
+    bridge: {
+      repo: 'https://github.com/ramupadhayay/oxmaint-portal-dhl-deploy/tree/humanoid/jetson',
+      run: 'python3 jetson/bridge.py',
+      health: '/health on the Jetson, port 8787',
+      note: 'Dry-run until HUMANOID_EXECUTE=1 on the robot. The USB camera is read there, not in this portal.',
+    },
     voice: {
       shop: voice.shop,
       phone_number: voice.phone_number,

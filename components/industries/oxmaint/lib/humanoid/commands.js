@@ -3,7 +3,8 @@
 
 import { KITS, WAYPOINTS, WALK } from './workflows'
 import { SPEC, inspectStation } from './quality'
-import { POSES, armCommand, jawCommand, velocityCommand } from './sdk'
+import { POSES, armCommand, jawCommand, setJointCommand, usbCapture, velocityCommand } from './sdk'
+import { ROBOT, SPOKEN, jointBySpeech, spokenBrief, spokenLines } from './catalog'
 
 function step(label, publish) {
   return { label, publish }
@@ -26,7 +27,7 @@ function unknown(text) {
     ok: true,
     understood: false,
     intent: 'unknown',
-    say: 'I can run the quality inspection, open or close the jaw, walk, stop, pick a kit, go to a waypoint, or start the shift walk. Say one of those.',
+    say: `Say “what can I say” for the list. I can inspect, use the USB camera, move a joint, open the jaw, walk, or stop.`,
     steps: [],
     heard: text,
   }
@@ -64,9 +65,27 @@ function waypointFrom(text) {
   return null
 }
 
+function withUsb(result, text) {
+  if (!/\busb|nvidia camera|jetson camera\b/.test(text)) return result
+  const steps = (result.steps || []).map((row) => {
+    if (row.publish?.action !== 'capture') return row
+    return {
+      ...row,
+      label: row.label.replace(/^Photograph/, 'USB photograph').replace(/^Capture$/, 'USB capture').replace(/^Note /, 'USB note '),
+      publish: usbCapture(row.publish.unit || row.publish.waypoint || row.publish.place || row.label),
+    }
+  })
+  const say = result.say ? `${result.say} The picture is from the USB camera on the Jetson, ${ROBOT.usb_camera.device}.` : result.say
+  return { ...result, say, steps, camera: 'usb' }
+}
+
 export function interpretCommand(raw) {
   const text = String(raw || '').trim().toLowerCase().replace(/\s+/g, ' ')
   if (!text) return unknown('')
+
+  if (/\b(what can i say|available commands|list commands|what can you do|command list)\b/.test(text)) {
+    return reply('catalog', spokenBrief(), [], { robot: ROBOT, spoken: spokenLines() })
+  }
 
   if (/\b(stop|halt|freeze|stand still)\b/.test(text)) {
     return reply('stop', 'Stopping. Velocity zero. Arms stay where they are.', [
@@ -87,11 +106,62 @@ export function interpretCommand(raw) {
     ])
   }
 
+  const setMatch = text.match(/\bset .+ to (-?\d+(?:\.\d+)?)\b/)
+  if (setMatch) {
+    const joint = jointBySpeech(text)
+    if (!joint) {
+      return reply('joint', 'Name the joint the way the list does. For example: set left elbow to 1.2, or set head pitch to 0.4.', [])
+    }
+    const q = Number(setMatch[1])
+    return reply('joint', `Setting ${joint.name} to ${q} radians. The other arm and head joints stay at the hold pose.`, [
+      step(joint.name, setJointCommand(joint.name, q)),
+    ])
+  }
+
+  if (/\blook\b/.test(text) && !/\bquality|carton|inspect|kit|shift|usb|picture|photo\b/.test(text)) {
+    if (/\bleft\b/.test(text)) {
+      return reply('head', 'Looking left. Head yaw positive.', [step('Head yaw left', setJointCommand('HeadYaw', 0.5))])
+    }
+    if (/\bright\b/.test(text)) {
+      return reply('head', 'Looking right. Head yaw negative.', [step('Head yaw right', setJointCommand('HeadYaw', -0.5))])
+    }
+    if (/\bup\b/.test(text)) {
+      return reply('head', 'Looking up. Head pitch negative.', [step('Head pitch up', setJointCommand('HeadPitch', -0.25))])
+    }
+    return reply('head', 'Looking down. Head pitch 0.45, the same angle as a photograph.', [
+      step('Head pitch down', setJointCommand('HeadPitch', 0.45)),
+    ])
+  }
+
+  if (/\bwaist\b/.test(text)) {
+    const left = !/\bright\b/.test(text)
+    const q = left ? 0.4 : -0.4
+    return reply('waist', left ? 'Waist yaw left, 0.4 radians.' : 'Waist yaw right, minus 0.4 radians.', [
+      step('Waist yaw', setJointCommand('WaistYaw', q)),
+    ])
+  }
+
+  if (/\barms home|home arms\b/.test(text)) {
+    return reply('pose', 'Arms, waist, and head back to the hold pose.', [step('Hold pose', armCommand(POSES.home, 1))])
+  }
+  if (/\breach\b/.test(text)) {
+    return reply('pose', 'Right arm reaching toward the line.', [step('Reach', armCommand(POSES.reach, 1))])
+  }
+  if (/\blift\b/.test(text) && !/\bkit|spare|carton|off the line\b/.test(text)) {
+    return reply('pose', 'Right arm lifting.', [step('Lift', armCommand(POSES.lift, 1))])
+  }
+
+  if (/\b(usb|nvidia camera|jetson camera)\b/.test(text) && !/\bquality|carton|line|inspect|shift|kit\b/.test(text)) {
+    return reply('usb_camera', `Taking one frame from the USB camera on the Jetson, ${ROBOT.usb_camera.device}.`, [
+      step('USB capture', usbCapture('spoken')),
+    ])
+  }
+
   if (/\bquality|q\.?a\b|\bcarton|out of spec|specification|\bspec\b|\bfaulty|reject|off the line\b/.test(text) || /\bpick\b.*\boff\b/.test(text)) {
     const named = text.match(/ctn[-\s]?(\d{4})/i)
     const unitId = named ? `CTN-${named[1]}` : ''
     const station = inspectStation(unitId)
-    return { ...station, sdk_note: 'The Jetson publishes these. This response does not open a DDS socket.' }
+    return withUsb({ ...station, sdk_note: 'The Jetson publishes these. This response does not open a DDS socket.' }, text)
   }
 
   if (/\bkit|spare|stores?\b|\bwork order\b|\bwo\b/.test(text)) {
@@ -105,7 +175,7 @@ export function interpretCommand(raw) {
 
   if (/\bshift|walkthrough|end of shift\b/.test(text)) {
     const abnormal = WALK.filter((point) => point.kind)
-    return reply(
+    return withUsb(reply(
       'shift_walk',
       `Walking the end of shift. ${abnormal.map((point) => `${point.place} opens a ${point.kind.toLowerCase()} request`).join('. ')}.`,
       [
@@ -118,7 +188,7 @@ export function interpretCommand(raw) {
         })),
         step('Return to the dock', velocityCommand(-0.2, 0, 0, 3)),
       ],
-    )
+    ), text)
   }
 
   if (/\bdock|go home|return\b/.test(text)) {
@@ -126,6 +196,13 @@ export function interpretCommand(raw) {
       step('Open the jaw', jawCommand('open')),
       step('Walk to the dock', velocityCommand(-0.2, 0, 0, 3)),
       step('Arms home', armCommand(POSES.home, 1)),
+    ])
+  }
+
+  if (/\bstrafe\b/.test(text)) {
+    const left = !/\bright\b/.test(text)
+    return reply('strafe', left ? 'Strafing left. Positive vy.' : 'Strafing right. Negative vy.', [
+      step(left ? 'Strafe left' : 'Strafe right', velocityCommand(0, left ? 0.15 : -0.15, 0, 1.5)),
     ])
   }
 
@@ -150,16 +227,16 @@ export function interpretCommand(raw) {
       return reply('inspect_blocked', `${point.name} has no pose, so I will not leave the dock.`, [], { waypoint: point.id })
     }
     if (point) {
-      return reply('inspect', `Going to ${point.name}. I will take the picture and come back. The jaw stays open.`, [
+      return withUsb(reply('inspect', `Going to ${point.name}. I will take the picture and come back. The jaw stays open.`, [
         step(`Walk to ${point.name}`, velocityCommand(0.2, 0, 0, 3)),
         step('Look and photograph', armCommand(POSES.look, 1)),
         step('Capture', { camera: 'head', action: 'capture', waypoint: point.id, pose: point.pose }),
         step('Return to the dock', velocityCommand(-0.2, 0, 0, 3)),
-      ], { waypoint: point.id })
+      ], { waypoint: point.id }), text)
     }
     if (/\bline\b/.test(text)) {
       const station = inspectStation()
-      return { ...station, sdk_note: 'The Jetson publishes these. This response does not open a DDS socket.' }
+      return withUsb({ ...station, sdk_note: 'The Jetson publishes these. This response does not open a DDS socket.' }, text)
     }
   }
 
@@ -167,22 +244,15 @@ export function interpretCommand(raw) {
 }
 
 export function executeHumanoidTool(name, args = {}) {
-  if (name === 'run_quality_inspection') return inspectStation(args.unit_id || args.unit || '')
+  if (name === 'list_robot_commands') return interpretCommand('what can I say')
+  if (name === 'run_quality_inspection') {
+    const station = inspectStation(args.unit_id || args.unit || '')
+    return args.camera === 'usb' ? withUsb(station, 'usb camera') : station
+  }
   if (name === 'stage_robot_command') return interpretCommand(args.text || args.utterance || args.command || '')
   return { ok: false, understood: false, say: 'That tool is not on this robot.', steps: [] }
 }
 
-export const COMMAND_EXAMPLES = [
-  'Run quality inspection and pick the faulty cartons off the line',
-  'Check carton CTN-1902',
-  'Close the jaw gun',
-  'Open the jaw',
-  'Walk forward',
-  'Stop',
-  'Pick the kit for work order 2614',
-  'Inspect the filler jaw',
-  'Start the end of shift walk',
-  'Return to the dock',
-]
+export const COMMAND_EXAMPLES = spokenLines()
 
-export { SPEC }
+export { SPEC, spokenLines, spokenBrief, ROBOT, SPOKEN }

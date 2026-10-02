@@ -34,6 +34,7 @@ export default function HumanoidBridge() {
           <p>
             State comes in on <span className="font-mono">{TOPICS.lowState}</span>. Arm commands go out on <span className="font-mono">{TOPICS.armCmd}</span>.
             Walking is the sport service, not a joint command. The parallel jaw — spoken as jaw or jaw gun — sits on the right wrist and is not one of these indexes.
+            A USB camera on the Jetson Orin NX is a second feed, /dev/video0, read by the bridge as V4L2. It is not a DDS camera.
           </p>
           <p>
             SDK: <a className="text-primary underline" href={SDK_REPO}>{SDK_REPO}</a>

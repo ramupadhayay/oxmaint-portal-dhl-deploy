@@ -120,3 +120,31 @@ export function jawCommand(action) {
   }
 }
 
+// Extra camera on the Jetson, not one of the robot's DDS cameras.
+export const USB_CAMERA = {
+  name: 'USB camera',
+  host: 'Jetson Orin NX',
+  device: '/dev/video0',
+  env: 'HUMANOID_USB_CAMERA',
+  note: 'V4L2 on the NVIDIA unit. The bridge opens this device. The portal does not.',
+}
+
+export function setJointCommand(name, q) {
+  const index = ARM_JOINTS.findIndex((joint) => joint.name === name)
+  if (index < 0) return null
+  const pose = HOLD.slice()
+  pose[index] = Number(q)
+  return armCommand(pose, 1)
+}
+
+export function usbCapture(reason) {
+  return {
+    camera: 'usb',
+    device: USB_CAMERA.device,
+    host: USB_CAMERA.host,
+    action: 'capture',
+    reason,
+  }
+}
+
+
