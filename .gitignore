@@ -3,6 +3,8 @@ node_modules/
 out/
 .env.local
 *.log
+__pycache__/
+*.pyc
 
 # Agent instruction files. `next dev` writes and re-adds AGENTS.md on every run,
 # so tracking it meant a permanently dirty tree that every commit had to either
