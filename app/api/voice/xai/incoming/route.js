@@ -65,6 +65,6 @@ export function GET() {
     ok: true,
     webhook: 'xAI SIP CreatePhoneNumberV2 → POST this URL',
     event: 'realtime.call.incoming',
-    shop: isHumanoidPack() ? 'Plant floor — R1 EDU' : 'DHL Express CVG GSE — Oxmaint AI',
+    shop: isHumanoidPack() ? 'Autonomous Units' : 'DHL Express CVG GSE — Oxmaint AI',
   })
 }

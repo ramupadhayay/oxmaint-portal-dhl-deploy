@@ -27,7 +27,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 PORTAL = os.environ.get(
     'OXMAINT_COMMAND_URL',
-    'https://oxmaint-portal-humanoid.vercel.app/api/humanoid/command',
+    'https://oxmaint-portal-autonomous-units.vercel.app/api/humanoid/command',
 )
 PORT = int(os.environ.get('HUMANOID_BRIDGE_PORT', '8787'))
 HOST = '0.0.0.0' if os.environ.get('HUMANOID_PUBLIC') == '1' else '127.0.0.1'

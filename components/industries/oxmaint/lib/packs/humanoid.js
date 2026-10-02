@@ -1,13 +1,13 @@
-// Plant floor with one R1 EDU. The CMMS around it is the same portal.
-// The humanoid module is domain.sections — kit, inspection, end-of-shift walk,
+// Autonomous Units. One R1 EDU on the plant floor. The CMMS around it is the same portal.
+// The module is domain.sections — kit, inspection, end-of-shift walk,
 // and the SDK bridge. Synthetic. Not a robot log and not a customer's stores.
 
 export default {
   key: 'humanoid',
-  label: 'Plant floor — R1 EDU',
+  label: 'Autonomous Units',
 
   org: {
-    organization_name: 'Plant Floor',
+    organization_name: 'Autonomous Units',
     organization_code: 'R1',
     industry: 'Food manufacturing — humanoid stores, inspection and shift walk',
     address: 'Bay 1',
@@ -27,7 +27,7 @@ export default {
   },
 
   sites: [
-    { site_id: 'site_01', site_name: 'Plant floor', code: 'R1', city: 'Orbe', country: 'Switzerland', is_default: true },
+    { site_id: 'site_01', site_name: 'Autonomous Units', code: 'R1', city: 'Orbe', country: 'Switzerland', is_default: true },
   ],
 
   locations: [
@@ -83,7 +83,7 @@ export default {
 
   domain: {
     key: 'humanoid',
-    label: 'Humanoid',
+    label: 'Autonomous Units',
     subtitle: 'R1 EDU — quality, kit, inspection, shift walk, voice',
     icon: 'humanoid',
     sections: [

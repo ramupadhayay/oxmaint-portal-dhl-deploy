@@ -2,8 +2,8 @@
 
 Public portal (already up):
 
-- Voice and the speakable list: https://oxmaint-portal-humanoid.vercel.app/portal/oxmaint/humanoid-voice
-- Command point: `POST https://oxmaint-portal-humanoid.vercel.app/api/humanoid/command`
+- Voice and the speakable list: https://oxmaint-portal-autonomous-units.vercel.app/portal/oxmaint/humanoid-voice
+- Command point: `POST https://oxmaint-portal-autonomous-units.vercel.app/api/humanoid/command`
 - Phone: +1 (408) 549-1275
 
 This folder runs on the Jetson Orin NX in the robot. It asks that command point what to do, then (when you turn execution on) is the process that can publish `rt/arm_sdk`, sport velocity, the wrist jaw, and a frame from the USB camera plugged into the NVIDIA unit (`/dev/video0`).
