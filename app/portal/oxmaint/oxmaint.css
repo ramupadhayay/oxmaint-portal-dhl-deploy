@@ -1,0 +1,223 @@
+/*
+  The Oxmaint CMMS portal's stylesheet — the real product's design system,
+  brought across so this portal reads as that product rather than as a lookalike.
+
+  Two deliberate departures from the product's own globals.css, both forced by
+  this app holding six portals in one Next project:
+
+  1. NO PREFLIGHT. The product imports all of Tailwind, preflight included, and
+     can afford to: it is the only thing in its codebase. Here, preflight's reset
+     would strip the margins, borders and font sizing that the other five portals
+     rely on — they are written entirely in inline styles against browser
+     defaults. Importing theme and utilities and leaving base out gives this
+     portal every Tailwind class without touching a single element anywhere else.
+
+  2. IMPORTED BY THE ROUTE SEGMENT, not the root layout, so the stylesheet is
+     only sent to /portal/oxmaint and below.
+
+  The tokens are the product's, and the brand values are the ones its
+  config/config.ts injects at runtime rather than the neutral shadcn fallbacks
+  underneath them: primary #15227a, accent #f58b00.
+*/
+
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/* Where to look for class names. Explicit because this file does not sit at the
+   project root, and v4 infers its scan root from the stylesheet's own location. */
+@source '../../../components/industries/oxmaint';
+@source '../../../app/portal/oxmaint';
+
+/*
+  This portal is light-only, and so is the product it mirrors.
+
+  Tailwind's default `dark:` variant is `prefers-color-scheme: dark`, so every
+  dark: class the ported shadcn primitives carry fires on any machine whose OS is
+  set to dark — on a portal that has no dark palette behind it. The switch on
+  Inspection Reminders was the first casualty: `dark:data-[state=unchecked]:
+  bg-foreground` painted its thumb brand navy on a near-invisible track, so the
+  control read as a stray dot.
+
+  Rebinding the variant to a class nothing ever carries disables every dark:
+  utility in this portal without editing twenty-four primitives. Restore the OS
+  behaviour only when there is a real dark palette to restore it to.
+*/
+@custom-variant dark (&:where(.ox-dark, .ox-dark *));
+
+/*
+  Every value below is the one the product's own theme injects at runtime, read
+  out of config/theme.ts and config/config.ts rather than eyeballed.
+
+  Two of these are easy to get wrong and were, first time round. In shadcn,
+  `--accent` is the quiet hover wash behind a ghost button, NOT a brand colour —
+  the product sets it to gray[100]. The brand orange is `--secondary`. Putting
+  #f58b00 on --accent turns every hover state orange.
+*/
+:root {
+  --radius: 0.625rem;
+
+  --background: #ffffff;
+  --foreground: #15227a;          /* text.primary */
+  --card: #ffffff;                /* white.pure */
+  --card-foreground: #374151;     /* gray[800] */
+  --popover: #ffffff;
+  --popover-foreground: #374151;
+
+  --primary: #15227a;             /* primary[900] — the brand blue */
+  --primary-foreground: #ffffff;
+  --secondary: #f58b00;           /* secondary[500] — the brand orange */
+  --secondary-foreground: #ffffff;
+  --accent: #f9fafb;              /* gray[100] — hover wash, not a brand colour */
+  --accent-foreground: #374151;   /* gray[800] */
+
+  --muted: #f9fafb;               /* gray[100] */
+  --muted-foreground: #6b7280;    /* gray[600] */
+  --surface: #fafafa;
+
+  --destructive: #ef4444;         /* error[500] */
+  --destructive-foreground: #ffffff;
+  --success: #22c55e;             /* success[500] */
+  --success-foreground: #ffffff;
+  --warning: #f59e0b;             /* warning[500] */
+  --warning-foreground: #ffffff;
+
+  --border: #e5e7eb;              /* gray[300] */
+  --input: #e5e7eb;
+  --ring: #15227a;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0a0a0a;
+  --sidebar-primary: #15227a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f5f5f5;
+  --sidebar-accent-foreground: #15227a;
+  --sidebar-border: #e5e7eb;
+
+  --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Cascadia Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-surface: var(--surface);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/*
+  The product scales its whole interface down with `html { font-size: 90% }`,
+  which is what gives it its density. `rem` resolves against the root element and
+  nothing else, so this cannot be scoped to a container — the portal's shell adds
+  this class to <html> while it is mounted and takes it off on the way out, so
+  the other portals keep browser-default sizing.
+*/
+html.ox-ui {
+  font-size: 90%;
+}
+
+/*
+  The one piece of preflight this portal cannot do without.
+
+  Leaving preflight out keeps the other five portals exactly as they were, but it
+  also leaves box-sizing at the browser default of content-box — and every
+  Tailwind utility is written on the assumption of border-box. An input with
+  `w-full pl-9 pr-3` then measures its container's width PLUS 48px of padding and
+  laps whatever sits beside it: the search field on Work Orders and on Requests
+  was overlapping the first filter select by exactly 35px, which is how "Status:
+  All" came to render as "tus: All".
+
+  Scoped to the class the shell puts on <html> while this portal is mounted, so
+  it lands on nothing else.
+*/
+html.ox-ui *,
+html.ox-ui *::before,
+html.ox-ui *::after {
+  box-sizing: border-box;
+}
+
+/*
+  The second piece, for the same reason.
+
+  A shadcn primitive that draws a <button> assumes preflight has already stripped
+  the user agent's padding, border, background and font off it. Without that, a
+  control which sets no padding of its own keeps the browser's `1px 6px` — the
+  Switch's 32px track lost 12px to it and had no room left to slide its thumb.
+
+  Narrowed to `button[data-slot]`, which is exactly the set of ported primitives
+  and nothing hand-written: the five inline-styled portals have no data-slot
+  anywhere, and this portal's own inline-styled buttons declare their padding
+  inline, which wins regardless. It sits in the base layer so every Tailwind
+  utility still overrides it.
+*/
+/*
+  The third piece: the user agent's block margins.
+
+  Every shadcn card here lays its rows out with `space-y-*` and reads the
+  elements themselves as margin-free, because preflight normally zeroes them. Not
+  importing it leaves `h1`–`h6` and `p` carrying the browser's `1em 0`, which is
+  why an Inspection Checklist card had its status badge floating above its own
+  title and half a line of air between every fact on it.
+
+  Scoped to this portal, and confined to the elements preflight itself zeroes. It
+  changes nothing in the five inline-styled portals, and nothing in this one's
+  own hand-styled components either — those already set `margin: 0` inline,
+  which wins over any stylesheet.
+*/
+@layer base {
+  html.ox-ui :where(h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd, pre, hr) {
+    margin: 0;
+  }
+  html.ox-ui :where(h1, h2, h3, h4, h5, h6) {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+}
+
+@layer base {
+  html.ox-ui button[data-slot] {
+    padding: 0;
+    border: 0 solid currentColor;
+    background-color: transparent;
+    background-image: none;
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    text-align: inherit;
+  }
+}

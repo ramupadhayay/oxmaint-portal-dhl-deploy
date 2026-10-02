@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+.env.local
+*.log
+
+# Agent instruction files. `next dev` writes and re-adds AGENTS.md on every run,
+# so tracking it meant a permanently dirty tree that every commit had to either
+# carry or fight. They stay on disk for whoever is working here; they are not
+# part of the product.
+CLAUDE.md
+AGENTS.md

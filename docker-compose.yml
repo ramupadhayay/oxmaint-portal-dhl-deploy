@@ -1,0 +1,82 @@
+# The portals, as this box runs them.
+#
+# TWO KINDS OF SETTING, and the difference decides where each one goes.
+#
+#   Runtime  — MONGO_URI, JWT_SECRET, INTERNAL_EMAILS. Read by the server on
+#              each request, so `env_file` is enough and a change needs only a
+#              restart.
+#
+#   Build    — everything NEXT_PUBLIC_, and BASE_PATH. `next build` writes these
+#              into the browser bundle, so they have to be passed as build args;
+#              putting them in .env.local does nothing, because by the time the
+#              container reads that file the value is already baked in. The
+#              image had no build args at all, which is why setting the pack on
+#              the host changed nothing and gave no sign that it had not.
+#
+#              Two of them are also needed once the container is running — the
+#              API scopes records to the server's pack, and `next start` re-reads
+#              BASE_PATH — so the Dockerfile's runtime stage turns the same build
+#              args into ENV. One value, passed once, true on both sides.
+#
+# Each organisation is its own image. That is not a packaging choice either —
+# eighty-seven files read the plant from module scope, so one bundle is one
+# organisation, and serving two means building two.
+
+services:
+  oxmaint:
+    build:
+      context: .
+      args:
+        # Empty is a valid answer for all of these: it gives the default pack,
+        # which is what a single-customer box wants. Override per box, e.g.
+        #   NEXT_PUBLIC_OX_DEMOS_SERVED=chiller,dhl-gse docker compose up -d --build
+        NEXT_PUBLIC_OXMAINT_PACK: "${NEXT_PUBLIC_OXMAINT_PACK:-}"
+        NEXT_PUBLIC_OX_DEMOS_SERVED: "${NEXT_PUBLIC_OX_DEMOS_SERVED:-}"
+        NEXT_PUBLIC_OX_DEMOS: "${NEXT_PUBLIC_OX_DEMOS:-}"
+        BASE_PATH: "${BASE_PATH:-}"
+    container_name: oxmaint-portal
+    # 3010 is the iFactory portal, 5000 the PPE detector, 8080 taken.
+    ports:
+      - "3020:3000"
+    env_file:
+      - .env.local
+    environment:
+      - HOSTNAME=0.0.0.0
+    restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # The DHL ground-fleet build, for showing the GSE module beside the default.
+  #
+  # Behind a profile, so an ordinary `docker compose up -d` on a box that only
+  # serves one customer does not build a second image it will never answer on.
+  # Bring it up with:  docker compose --profile demos up -d --build
+  #
+  # It is a second port rather than a sub-path because that needs nothing in
+  # front of it. If this box does get a reverse proxy, build it with
+  # BASE_PATH=/dhl instead and map /dhl to it — then the switcher's own default
+  # paths work as written.
+  oxmaint-dhl:
+    profiles: ["demos"]
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_OXMAINT_PACK: "dhl-gse"
+        NEXT_PUBLIC_OX_DEMOS_SERVED: "${NEXT_PUBLIC_OX_DEMOS_SERVED:-}"
+        NEXT_PUBLIC_OX_DEMOS: "${NEXT_PUBLIC_OX_DEMOS:-}"
+    container_name: oxmaint-portal-dhl
+    ports:
+      - "3021:3000"
+    env_file:
+      - .env.local
+    environment:
+      - HOSTNAME=0.0.0.0
+    restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
