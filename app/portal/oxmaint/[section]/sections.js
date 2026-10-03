@@ -45,6 +45,7 @@ export const SECTION_SLUGS = [
   'humanoid-kit',
   'humanoid-inspect',
   'humanoid-walk',
+  'drone-voice',
   'fls-evidence',
   'fls-compliance',
   'fls-ilsm',

@@ -87,6 +87,7 @@ const P = {
   humanoidKit: load(() => import('@/components/industries/oxmaint/pages/HumanoidKit')),
   humanoidInspect: load(() => import('@/components/industries/oxmaint/pages/HumanoidInspect')),
   humanoidWalk: load(() => import('@/components/industries/oxmaint/pages/HumanoidWalk')),
+  droneVoice: load(() => import('@/components/industries/oxmaint/pages/DroneVoice')),
 
   // The hospital life safety module. Same rule as the GSE one: the routes are
   // there for every pack and explain themselves where the pack has no module.
@@ -204,6 +205,7 @@ const SECTION_MAP = {
   'humanoid-kit': P.humanoidKit,
   'humanoid-inspect': P.humanoidInspect,
   'humanoid-walk': P.humanoidWalk,
+  'drone-voice': P.droneVoice,
 
   'fls-evidence': P.flsEvidence,
   'fls-compliance': P.flsCompliance,

@@ -16,11 +16,12 @@ import hospitality from './hospitality'
 import dhlGse from './dhl-gse'
 import nestle from './nestle'
 import humanoid from './humanoid'
+import drone from './drone'
 import hospitalFls from './hospital-fls'
 import tyrePlant from './tyre-plant'
 
 export const PACKS = {
-  generic, chiller, hospitality, 'dhl-gse': dhlGse, nestle, humanoid, 'hospital-fls': hospitalFls, 'tyre-plant': tyrePlant,
+  generic, chiller, hospitality, 'dhl-gse': dhlGse, nestle, humanoid, drone, 'hospital-fls': hospitalFls, 'tyre-plant': tyrePlant,
 }
 
 // `NEXT_PUBLIC_OXMAINT_PACK` overrides it for a deployment that needs a
